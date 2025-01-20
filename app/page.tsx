@@ -9,7 +9,18 @@ const Home = () => {
   const [visibleHotels, setVisibleHotels] = useState<Hotel[]>([]); 
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState({ minPrice: 0, maxPrice: 500, minRating: 0, sortBy: 'priceLowToHigh' });
+
+  const [filter, setFilter] = useState<{
+  minPrice: number | null;
+  maxPrice: number | null;
+  minRating: number | null;
+  sortBy: string;
+}>({
+  minPrice: null,
+  maxPrice: null,
+  minRating: null,
+  sortBy: 'priceLowToHigh',
+});
 
   const loadMoreHotels = () => {
     if (loading) return;
@@ -27,16 +38,16 @@ const Home = () => {
     setFilter({ ...filter, sortBy: event.target.value });
   };
         const clearFilters = () => {
-    setFilter({ minPrice: 0, maxPrice: 500, minRating: 0, sortBy: 'priceLowToHigh' });
+    setFilter({ minPrice: null, maxPrice: null, minRating: null, sortBy: 'priceLowToHigh' });
   };
 
   useEffect(() => {
     let filteredData = hotels.filter(
-      (hotel) =>
-        hotel.price >= filter.minPrice &&
-        hotel.price <= filter.maxPrice &&
-        hotel.rating >= filter.minRating
-    );
+    (hotel) =>
+      (filter.minPrice === null || hotel.price >= filter.minPrice) &&
+      (filter.maxPrice === null || hotel.price <= filter.maxPrice) &&
+      (filter.minRating === null || hotel.rating >= filter.minRating)
+  );
 
     if (filter.sortBy === 'priceLowToHigh') {
       filteredData = filteredData.sort((a, b) => a.price - b.price);
@@ -60,8 +71,10 @@ const Home = () => {
           <label className="mr-2 text-lg font-semibold text-gray-700">Min Price:</label>
           <input
             type="number"
-            value={filter.minPrice}
-            onChange={(e) => setFilter({ ...filter, minPrice: +e.target.value })}
+            value={filter.minPrice === null ? '' : filter.minPrice}
+  onChange={(e) =>
+    setFilter({ ...filter, minPrice: e.target.value === '' ? null : +e.target.value })
+  }
             className="border p-3 rounded-md bg-slate-300 transition-all duration-300 ease-in-out focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -69,8 +82,10 @@ const Home = () => {
           <label className="mr-2 text-lg font-semibold text-gray-700">Max Price:</label>
           <input
             type="number"
-            value={filter.maxPrice}
-            onChange={(e) => setFilter({ ...filter, maxPrice: +e.target.value })}
+           value={filter.maxPrice === null ? '' : filter.maxPrice}
+  onChange={(e) =>
+    setFilter({ ...filter, maxPrice: e.target.value === '' ? null : +e.target.value })
+  }
             className="border p-3 rounded-md bg-slate-300 transition-all duration-300 ease-in-out focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -78,10 +93,12 @@ const Home = () => {
           <label className="mr-2 text-lg font-semibold text-gray-700">Min Rating:</label>
           <input
             type="number"
-            value={filter.minRating}
-            max={5}
-            min={0}
-            onChange={(e) => setFilter({ ...filter, minRating: +e.target.value })}
+            value={filter.minRating === null ? '' : filter.minRating}
+  max={5}
+  min={0}
+  onChange={(e) =>
+    setFilter({ ...filter, minRating: e.target.value === '' ? null : +e.target.value })
+  }
             className="border p-3 rounded-md bg-slate-300 transition-all duration-300 ease-in-out focus:ring-2 focus:ring-blue-500"
           />
         </div>
